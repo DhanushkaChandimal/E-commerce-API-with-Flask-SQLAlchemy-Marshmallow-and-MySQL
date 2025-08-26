@@ -5,6 +5,7 @@ import config
 from models.base import Base
 from models.user import User
 from models.order import Order
+from models.product import Product
 
 app = Flask(__name__)
 
