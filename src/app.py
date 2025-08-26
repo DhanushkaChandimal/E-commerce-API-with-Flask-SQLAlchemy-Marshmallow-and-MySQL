@@ -1,7 +1,14 @@
-import config
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+import config
+from models import Base
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+mysqlconnector://{config.DATABASE["username"]}:{config.DATABASE["password"]}@{config.DATABASE["db_host"]}/{config.DATABASE["db_name"]}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
+ma = Marshmallow(app)
