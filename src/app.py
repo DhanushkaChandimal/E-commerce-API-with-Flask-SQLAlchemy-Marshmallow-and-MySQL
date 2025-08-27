@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, DateTime, ForeignKey, Float
+from sqlalchemy import String, DateTime, ForeignKey, Float, Table, Column
 from datetime import datetime
 
 app = Flask(__name__)
@@ -35,3 +35,10 @@ class Product(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     product_name: Mapped[str] = mapped_column(String(200))
     price: Mapped[float] =  mapped_column(Float)
+
+order_product = Table{
+    "order_procuct",
+    Base.metadata,
+    Column("order_id", ForeignKey("orders.id"), primary_key=True),
+    Column("product_id", ForeignKey("products.id"), primary_key=True)
+}
