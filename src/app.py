@@ -85,8 +85,8 @@ def create_user():
         return jsonify(e.messages), 400
     new_user = User(name=user_data['name'], address=user_data['address'], email=user_data['email'])
     db.session.add(new_user)
-    db.session.commit
-    return users_schema.jsonify(new_user), 201
+    db.session.commit()
+    return user_schema.jsonify(new_user), 201
 
 @app.route('/users/<int:id>', methods = ['PUT'])
 def update_user(id):
