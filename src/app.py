@@ -66,10 +66,10 @@ class ProductSchema(ma.SQLAlchemyAutoSchema):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
-order_schema = UserSchema()
-orders_schema = UserSchema(many=True)
-product_schema = UserSchema()
-products_schema = UserSchema(many=True)
+order_schema = OrderSchema()
+orders_schema = OrderSchema(many=True)
+product_schema = ProductSchema()
+products_schema = ProductSchema(many=True)
 
 # ======================User endpoints======================
 
@@ -140,7 +140,11 @@ def get_product(id):
 @app.route('/products', methods = ['POST'])
 def create_product():
     try:
+        print("=============================")
+        print(request.json)
         product_data = product_schema.load(request.json)
+        print(product_data)
+        print("=============================")
     except ValidationError as e:
         return jsonify(e.messages), 400
     new_product = Product(product_name=product_data['product_name'], price=product_data['price'])
