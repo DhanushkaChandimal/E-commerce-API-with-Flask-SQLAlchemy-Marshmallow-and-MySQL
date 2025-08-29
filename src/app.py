@@ -1,4 +1,4 @@
-from config import app
+from app_config import app
 import api.users_api
 import api.products_api
 import api.orders_api

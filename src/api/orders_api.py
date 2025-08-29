@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from sqlalchemy import select, exc
 from marshmallow import ValidationError
-from config import app, db
+from app_config import app, db
 from models.user import User
 from models.order import Order
 from models.product import Product
