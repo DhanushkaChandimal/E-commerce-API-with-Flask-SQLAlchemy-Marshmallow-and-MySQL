@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc
 from marshmallow import ValidationError
 from config import app, db
 from models.product import Product
@@ -10,8 +10,24 @@ from schemas import product_schema, products_schema
 def get_products():
     page_number = int(request.args.get('page', 1))
     items_per_page = int(request.args.get('per_page', 10))
+    sort_by = request.args.get('sort_by', 'id')  # id, name, price
+    sort_order = request.args.get('sort', 'asc')  # asc, desc
     offset = (page_number - 1) * items_per_page
-    query = select(Product).limit(items_per_page).offset(offset)
+
+    if(sort_by not in ['id', 'price', 'product_name']):
+        sort_by = 'id'
+
+    if(sort_by == 'product_name'):
+        column = Product.product_name
+    elif(sort_by == 'price'):
+        column = Product.price
+    else:
+        column = Product.id
+
+    # Set order direction
+    order = desc(column) if sort_order == 'desc' else asc(column)
+
+    query = select(Product).order_by(order).limit(items_per_page).offset(offset)
     products = db.session.execute(query).scalars().all()
     return products_schema.jsonify(products), 200
 
