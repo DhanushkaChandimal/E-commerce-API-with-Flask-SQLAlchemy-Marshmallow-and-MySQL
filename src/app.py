@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import String, DateTime, ForeignKey, Float, Table, Column, select
+from sqlalchemy import String, DateTime, ForeignKey, Float, Table, Column, select, exc
 from marshmallow import ValidationError
 from datetime import datetime
 from typing import List
@@ -186,11 +186,13 @@ def delete_product(id):
 def create_order():
     try:
         order_data = order_schema.load(request.json)
+        new_order = Order(user_id=order_data['user_id'], order_date=order_data['order_date'])
+        db.session.add(new_order)
+        db.session.commit()
     except ValidationError as e:
         return jsonify(e.messages), 400
-    new_order = Order(user_id=order_data['user_id'], order_date=order_data['order_date'])
-    db.session.add(new_order)
-    db.session.commit()
+    except exc.IntegrityError as e:
+        return jsonify({"message": "Invalid user ID"}), 400
     return order_schema.jsonify(new_order), 201
 
 @app.route('/orders/<order_id>/add_product/<product_id>', methods=['PUT'])
