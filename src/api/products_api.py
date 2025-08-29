@@ -5,9 +5,13 @@ from config import app, db
 from models.product import Product
 from schemas import product_schema, products_schema
 
+# BONUS TASK: Implement pagination for user or product listings
 @app.route('/products', methods = ['GET'])
 def get_products():
-    query = select(Product)
+    page_number = int(request.args.get('page', 1))
+    items_per_page = int(request.args.get('per_page', 10))
+    offset = (page_number - 1) * items_per_page
+    query = select(Product).limit(items_per_page).offset(offset)
     products = db.session.execute(query).scalars().all()
     return products_schema.jsonify(products), 200
 
