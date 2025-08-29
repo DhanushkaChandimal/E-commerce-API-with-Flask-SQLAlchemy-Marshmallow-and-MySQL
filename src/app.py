@@ -1,51 +1,19 @@
 from flask import request, jsonify
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, DateTime, ForeignKey, Float, Table, Column, select, exc
+from sqlalchemy import select, exc
 from marshmallow import ValidationError
-from datetime import datetime
-from typing import List
-from config import Base, app, db, ma
-
-order_product = Table(
-    "order_procuct",
-    Base.metadata,
-    Column("order_id", ForeignKey("orders.id"), primary_key=True),
-    Column("product_id", ForeignKey("products.id"), primary_key=True)
-)
-
-class User(Base):
-    __tablename__ = "users"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50))
-    address: Mapped[str] = mapped_column(String(150))
-    email: Mapped[str] = mapped_column(String(100))
-
-class Order(Base):
-    __tablename__ = "orders"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    order_date: Mapped[datetime] = mapped_column(DateTime)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    
-    products: Mapped[List["Product"]] = relationship("Product", secondary=order_product, back_populates="orders")
-
-class Product(Base):
-    __tablename__ = "products"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    product_name: Mapped[str] = mapped_column(String(200))
-    price: Mapped[float] =  mapped_column(Float)
-    
-    orders: Mapped[List["Order"]] = relationship("Order", secondary=order_product, back_populates="products")
+from config import app, db, ma
+from models.user import User
+from models.order import Order
+from models.product import Product
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
 
-
 class OrderSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Order
         include_fk = True
-
 
 class ProductSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
