@@ -235,6 +235,11 @@ def remove_product_from_order(order_id, product_id):
 
 @app.route('/orders/user/<user_id>', methods = ['GET'])
 def get_all_orders_for_user(user_id):
+    
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
     query = select(Order).filter(Order.user_id == user_id)
     orders = db.session.execute(query).scalars().all()
     return orders_schema.jsonify(orders), 200
