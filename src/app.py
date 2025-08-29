@@ -191,7 +191,7 @@ def create_order():
         db.session.commit()
     except ValidationError as e:
         return jsonify(e.messages), 400
-    except exc.IntegrityError as e:
+    except exc.IntegrityError:
         return jsonify({"message": "Invalid user ID"}), 400
     return order_schema.jsonify(new_order), 201
 
@@ -205,9 +205,14 @@ def add_product_to_order(order_id, product_id):
     
     if not product:
         return jsonify({"message": "Invalid product id"}), 400
+    
+    try:
+        order.products.append(product)
+        db.session.commit()
+    except exc.IntegrityError:
+        db.session.rollback()
+        return jsonify({"message": f"Product {product.id} is already in the list"}), 400
 
-    order.products.append(product)
-    db.session.commit()
     return jsonify({"message": f"{product.product_name} add to the order {order.id}."}), 200
 
 @app.route('/orders/<order_id>/remove_product/<product_id>', methods=['DELETE'])
