@@ -225,6 +225,9 @@ def remove_product_from_order(order_id, product_id):
     
     if not product:
         return jsonify({"message": "Invalid product id"}), 400
+    
+    if not product in order.products:
+        return jsonify({"message": f"Product {product.id} is not in the order {order.id}"}), 400
 
     order.products.remove(product)
     db.session.commit()
