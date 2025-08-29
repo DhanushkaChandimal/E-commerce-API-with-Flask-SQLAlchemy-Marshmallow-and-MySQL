@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import String, DateTime, ForeignKey, Float, Table, Column, select
 from marshmallow import ValidationError
 from datetime import datetime
+from typing import List
 
 app = Flask(__name__)
 
@@ -18,6 +19,13 @@ db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 ma = Marshmallow(app)
 
+order_product = Table(
+    "order_procuct",
+    Base.metadata,
+    Column("order_id", ForeignKey("orders.id"), primary_key=True),
+    Column("product_id", ForeignKey("products.id"), primary_key=True)
+)
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -30,19 +38,16 @@ class Order(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     order_date: Mapped[datetime] = mapped_column(DateTime)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    
+    products: Mapped[List["Product"]] = relationship("Product", secondary=order_product, back_populates="orders")
 
 class Product(Base):
     __tablename__ = "products"
     id: Mapped[int] = mapped_column(primary_key=True)
     product_name: Mapped[str] = mapped_column(String(200))
     price: Mapped[float] =  mapped_column(Float)
-
-order_product = Table(
-    "order_procuct",
-    Base.metadata,
-    Column("order_id", ForeignKey("orders.id"), primary_key=True),
-    Column("product_id", ForeignKey("products.id"), primary_key=True)
-)
+    
+    orders: Mapped[List["Order"]] = relationship("Order", secondary=order_product, back_populates="products")
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -171,7 +176,49 @@ def delete_product(id):
     db.session.commit()
     return jsonify({"message": f"Successfully deleted product {id}"}), 200
 
+# ======================Order endpoints======================
+
+@app.route('/orders', methods = ['POST'])
+def create_order():
+    try:
+        order_data = order_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    new_order = Order(user_id=order_data['user_id'], order_date=order_data['order_date'])
+    db.session.add(new_order)
+    db.session.commit()
+    return order_schema.jsonify(new_order), 201
+
+@app.route('/orders/<order_id>/add_product/<product_id>', methods=['PUT'])
+def add_product_to_order(order_id, product_id):
+    order = db.session.get(Order, order_id)
+    product = db.session.get(Product, product_id)
+
+    order.products.append(product)
+    db.session.commit()
+    return jsonify({"message": f"{product.product_name} add to the order {order.id}."}), 200
+
+@app.route('/orders/<order_id>/remove_product/<product_id>', methods=['DELETE'])
+def remove_product_from_order(order_id, product_id):
+    order = db.session.get(Order, order_id)
+    product = db.session.get(Product, product_id)
+
+    order.products.remove(product)
+    db.session.commit()
+    return jsonify({"message": f"{product.product_name} deleted from the order {order.id}."}), 200
+
+@app.route('/orders/user/<user_id>', methods = ['GET'])
+def get_all_orders_for_user(user_id):
+    query = select(Order).filter(Order.user_id == user_id)
+    orders = db.session.execute(query).scalars().all()
+    return orders_schema.jsonify(orders), 200
+
+@app.route('/orders/<order_id>/products', methods = ['GET'])
+def get_all_products_for_order(order_id):
+    order = db.session.get(Order, order_id)
+    return jsonify(order.products), 200
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+        # db.create_all()
     app.run(debug=True)
