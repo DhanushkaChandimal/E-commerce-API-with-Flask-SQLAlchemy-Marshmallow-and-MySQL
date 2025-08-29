@@ -219,6 +219,12 @@ def add_product_to_order(order_id, product_id):
 def remove_product_from_order(order_id, product_id):
     order = db.session.get(Order, order_id)
     product = db.session.get(Product, product_id)
+    
+    if not order:
+        return jsonify({"message": "Invalid order id"}), 400
+    
+    if not product:
+        return jsonify({"message": "Invalid product id"}), 400
 
     order.products.remove(product)
     db.session.commit()
