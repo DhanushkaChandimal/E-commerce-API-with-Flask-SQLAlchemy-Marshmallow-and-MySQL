@@ -2,7 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from models.base import Base
-from config import DATABASE
+from config import DATABASE, AUTH
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 
@@ -12,3 +13,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 ma = Marshmallow(app)
+
+app.config["JWT_SECRET_KEY"] = f"{AUTH["JWT_SECRET_KEY"]}"
+jwt = JWTManager(app)

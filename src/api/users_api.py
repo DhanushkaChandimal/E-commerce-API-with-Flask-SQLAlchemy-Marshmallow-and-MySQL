@@ -4,8 +4,21 @@ from marshmallow import ValidationError
 from app_config import app, db
 from models.user import User
 from schemas import user_schema, users_schema
+from flask_jwt_extended import create_access_token, jwt_required
+from config import AUTH
+
+# BONUS TASK: Add JWT authentication for user operations
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.json.get('email')
+    password = request.json.get('password')
+    if not email == AUTH["email"] or not password == AUTH["password"]:
+        return jsonify({"msg": "Bad credentials"}), 401
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token), 200
 
 @app.route('/users', methods = ['GET'])
+@jwt_required()
 def get_users():
     query = select(User)
     users = db.session.execute(query).scalars().all()
