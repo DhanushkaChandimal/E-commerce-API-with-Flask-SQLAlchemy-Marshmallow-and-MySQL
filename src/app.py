@@ -1,7 +1,7 @@
-from app_config import app, db
-import api.users_api
-import api.products_api
-import api.orders_api
+from .app_config import app, db
+from .api import users_api
+from .api import products_api
+from .api import orders_api
 
 if __name__ == '__main__':
     # with app.app_context():

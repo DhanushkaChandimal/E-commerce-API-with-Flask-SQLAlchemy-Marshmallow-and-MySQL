@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from models.base import Base
-from config import DATABASE, AUTH
+from .models.base import Base
+from .config import DATABASE, AUTH
 from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)

@@ -1,7 +1,7 @@
-from app_config import ma
-from models.user import User
-from models.order import Order
-from models.product import Product
+from .app_config import ma
+from .models.user import User
+from .models.order import Order
+from .models.product import Product
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

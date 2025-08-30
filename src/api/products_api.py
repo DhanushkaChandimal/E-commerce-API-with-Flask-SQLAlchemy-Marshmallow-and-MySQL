@@ -1,9 +1,9 @@
 from flask import request, jsonify
 from sqlalchemy import select, asc, desc
 from marshmallow import ValidationError
-from app_config import app, db
-from models.product import Product
-from schemas import product_schema, products_schema
+from ..app_config import app, db
+from ..models.product import Product
+from ..schemas import product_schema, products_schema
 
 # BONUS TASK: Implement pagination for user or product listings
 @app.route('/products', methods = ['GET'])

@@ -1,11 +1,11 @@
 from flask import request, jsonify
 from sqlalchemy import select
 from marshmallow import ValidationError
-from app_config import app, db
-from models.user import User
-from schemas import user_schema, users_schema
+from ..app_config import app, db
+from ..models.user import User
+from ..schemas import user_schema, users_schema
 from flask_jwt_extended import create_access_token, jwt_required
-from config import AUTH
+from ..config import AUTH
 
 # BONUS TASK: Add JWT authentication for user operations
 @app.route('/login', methods=['POST'])

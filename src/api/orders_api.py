@@ -1,11 +1,11 @@
 from flask import request, jsonify
 from sqlalchemy import select, exc
 from marshmallow import ValidationError
-from app_config import app, db
-from models.user import User
-from models.order import Order
-from models.product import Product
-from schemas import products_schema, order_schema, orders_schema
+from ..app_config import app, db
+from ..models.user import User
+from ..models.order import Order
+from ..models.product import Product
+from ..schemas import products_schema, order_schema, orders_schema
 
 @app.route('/orders', methods = ['POST'])
 def create_order():
